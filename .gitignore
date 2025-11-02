@@ -46,14 +46,10 @@ htmlcov/
 *.json
 *.md
 !README.md
-!IMPLEMENTATION_PLAN.md
-!OCTAVE_RESEARCH_REPORT.md
-!OCTAVE_SAMPLE_BRIEF.md
-!PHASE3_COMPLETION_SUMMARY.md
-!phase1_artifacts/**
-!phase2_artifacts/**
-!phase3_artifacts/**
-!parallel-outputs-examples/**
+!NEXT_STEPS.md
+!docs/**
+!marketing/**
+!artifacts/**
 
 # Logs
 *.log
