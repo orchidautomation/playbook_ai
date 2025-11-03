@@ -44,7 +44,6 @@ htmlcov/
 
 # Output files
 *.json
-*.md
 !README.md
 !CONTRIBUTING.md
 !AGENTOS_SPOTLIGHT_PROPOSAL.md
