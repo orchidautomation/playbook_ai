@@ -15,6 +15,7 @@ All domain formats are automatically normalized to https://
 
 import sys
 import json
+import os
 from datetime import datetime
 from agno.workflow import Workflow, Step, Parallel
 from models.workflow_input import WorkflowInput
@@ -214,10 +215,130 @@ def main():
             print("\nNo result returned from workflow.")
             sys.exit(1)
 
-        # Save results
+        # Save results in organized directory structure
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_filename = f"complete_output_{timestamp}.json"
+        run_dir = f"output/runs/{timestamp}"
+        os.makedirs(run_dir, exist_ok=True)
 
+        # Save metadata about the run
+        metadata = {
+            "timestamp": timestamp,
+            "vendor_domain": vendor_domain,
+            "prospect_domain": prospect_domain,
+            "workflow_name": workflow.name,
+            "completed_at": datetime.now().isoformat()
+        }
+
+        with open(f"{run_dir}/metadata.json", "w") as f:
+            json.dump(metadata, f, indent=2)
+
+        # Save Step 5: Batch scraping output
+        try:
+            step5_output = result.get_step_content("batch_scrape")
+            if step5_output:
+                with open(f"{run_dir}/step5_batch_scrape.json", "w") as f:
+                    json.dump(step5_output, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not save Step 5 output: {e}")
+
+        # Save Step 6: Vendor element extraction (all 8 extractors)
+        try:
+            step6_outputs = {}
+            extractor_names = [
+                "extract_offerings",
+                "extract_case_studies",
+                "extract_proof_points",
+                "extract_value_props",
+                "extract_customers",
+                "extract_use_cases",
+                "extract_personas",
+                "extract_differentiators"
+            ]
+
+            for extractor_name in extractor_names:
+                try:
+                    content = result.get_parallel_step_content("vendor_element_extraction", extractor_name)
+                    if content:
+                        step6_outputs[extractor_name] = content
+                except:
+                    pass
+
+            if step6_outputs:
+                with open(f"{run_dir}/step6_vendor_extraction.json", "w") as f:
+                    json.dump(step6_outputs, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not save Step 6 output: {e}")
+
+        # Save Step 7: Prospect analysis (all 3 analysts)
+        try:
+            step7_outputs = {}
+
+            # Step 7a: Parallel analysts
+            analyst_names = ["analyze_company", "analyze_pain_points"]
+            for analyst_name in analyst_names:
+                try:
+                    content = result.get_parallel_step_content("prospect_context_analysis", analyst_name)
+                    if content:
+                        step7_outputs[analyst_name] = content
+                except:
+                    pass
+
+            # Step 7b: Buyer personas (sequential)
+            try:
+                personas_content = result.get_step_content("identify_buyer_personas")
+                if personas_content:
+                    step7_outputs["identify_buyer_personas"] = personas_content
+            except:
+                pass
+
+            if step7_outputs:
+                with open(f"{run_dir}/step7_prospect_analysis.json", "w") as f:
+                    json.dump(step7_outputs, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not save Step 7 output: {e}")
+
+        # Save Step 8: Playbook generation (all components)
+        try:
+            step8_outputs = {}
+
+            # Step 8a: Summary
+            try:
+                summary = result.get_step_content("generate_playbook_summary")
+                if summary:
+                    step8_outputs["playbook_summary"] = summary
+            except:
+                pass
+
+            # Step 8b-d: Parallel components
+            component_names = [
+                "generate_email_sequences",
+                "generate_talk_tracks",
+                "generate_battle_cards"
+            ]
+            for component_name in component_names:
+                try:
+                    content = result.get_parallel_step_content("playbook_component_generation", component_name)
+                    if content:
+                        step8_outputs[component_name] = content
+                except:
+                    pass
+
+            # Step 8e: Final assembly
+            try:
+                final_playbook = result.get_step_content("assemble_final_playbook")
+                if final_playbook:
+                    step8_outputs["final_playbook"] = final_playbook
+            except:
+                pass
+
+            if step8_outputs:
+                with open(f"{run_dir}/step8_playbook_generation.json", "w") as f:
+                    json.dump(step8_outputs, f, indent=2)
+        except Exception as e:
+            print(f"Warning: Could not save Step 8 output: {e}")
+
+        # Also save the complete final output for backwards compatibility
+        output_filename = f"{run_dir}/complete_output.json"
         with open(output_filename, "w") as f:
             json.dump(result.content, f, indent=2)
 
@@ -228,7 +349,13 @@ def main():
 
         # Print summary
         content = result.content
-        print(f"\n📄 Results saved to: {output_filename}\n")
+        print(f"\n📁 All outputs saved to: {run_dir}/")
+        print(f"   • metadata.json - Run information")
+        print(f"   • step5_batch_scrape.json - Scraped content")
+        print(f"   • step6_vendor_extraction.json - Vendor GTM elements")
+        print(f"   • step7_prospect_analysis.json - Prospect insights")
+        print(f"   • step8_playbook_generation.json - Playbook components")
+        print(f"   • complete_output.json - Final assembled output\n")
         print("📊 Pipeline Summary:")
 
         # Phase 1 stats
