@@ -31,9 +31,9 @@ BATCH_SCRAPE_POLL_INTERVAL = 2  # Poll every 2 seconds
 
 # Primary models for different task types
 DEFAULT_MODEL = "openai:gpt-4o"           # Complex reasoning, synthesis, creative writing
-FAST_MODEL = "openai:gpt-4o-mini"         # Simple tasks, pattern matching (40-60% faster!)
+FAST_MODEL = "openai:gpt-4o"              # Simple tasks, pattern matching (using gpt-4o due to API access)
 REASONING_MODEL = "openai:gpt-4o"         # Analysis, complex reasoning tasks
-EXTRACTION_MODEL = "openai:gpt-4o-mini"   # Data extraction, entity extraction
+EXTRACTION_MODEL = "openai:gpt-4o"        # Data extraction, entity extraction (using gpt-4o due to API access)
 
 # Legacy constant (kept for compatibility)
 OPENAI_MODEL = "gpt-4o"
