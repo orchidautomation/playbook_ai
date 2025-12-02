@@ -28,12 +28,18 @@ BATCH_SCRAPE_POLL_INTERVAL = 2  # Poll every 2 seconds
 # Model Configuration (model-as-string format)
 # Agno 2.2.6+ supports model-as-string format: "provider:model_id"
 # See: https://docs.agno.com/concepts/models/model-as-string
+#
+# GPT-5.1 Configuration:
+# - 400k context window, 128k max output tokens
+# - Default reasoning effort: "none" (fastest, similar to gpt-4o)
+# - TPM Tier 1: 500,000 tokens (16x higher than gpt-4o)
+# - Supports structured outputs, function calling, tool use
 
 # Primary models for different task types
-DEFAULT_MODEL = "openai:gpt-4o"            # Complex reasoning, synthesis, creative writing
-FAST_MODEL = "openai:gpt-4o"               # Simple tasks, pattern matching
-REASONING_MODEL = "openai:gpt-4o"          # Analysis, complex reasoning tasks
-EXTRACTION_MODEL = "openai:gpt-4o"         # Data extraction, entity extraction
+DEFAULT_MODEL = "openai:gpt-5.1"           # Complex reasoning, synthesis, creative writing
+FAST_MODEL = "openai:gpt-5.1"              # Simple tasks, pattern matching
+REASONING_MODEL = "openai:gpt-5.1"         # Analysis, complex reasoning tasks
+EXTRACTION_MODEL = "openai:gpt-5.1"        # Data extraction, entity extraction
 
 # Legacy constant (kept for compatibility)
 OPENAI_MODEL = "gpt-4o"
