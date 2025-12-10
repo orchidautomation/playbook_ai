@@ -1,7 +1,7 @@
 """
-Octave Clone MVP - Phase 1, 2, 3 & 4 Workflow
-Complete sales intelligence pipeline: Intelligence gathering, vendor extraction,
-prospect analysis, and sales playbook generation.
+Playbook AI - Complete Sales Intelligence Pipeline
+Intelligence gathering, vendor extraction, prospect analysis, and sales playbook generation.
+https://github.com/orchidautomation/playbook_ai-oss
 """
 
 from agno.workflow import Workflow, Step, Parallel

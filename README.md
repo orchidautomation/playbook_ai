@@ -41,7 +41,8 @@ An intelligent sales playbook generator that analyzes vendor and prospect websit
 
 1. **Clone and navigate to the project:**
    ```bash
-   cd octave-clone
+   git clone https://github.com/orchidautomation/playbook_ai-oss.git
+   cd playbook_ai-oss
    ```
 
 2. **Install dependencies:**
@@ -79,13 +80,13 @@ python serve.py
 ```
 
 Access the API at:
-- **API Endpoint**: `POST http://localhost:7777/workflows/octave-clone-complete-sales-intelligence-pipeline/runs`
+- **API Endpoint**: `POST http://localhost:7777/workflows/playbook-ai-sales-intelligence-pipeline/runs`
 - **Control Plane UI**: `http://localhost:7777` (real-time workflow monitoring)
 - **OpenAPI Docs**: `http://localhost:7777/docs` (interactive API documentation)
 
 **Example API Call**:
 ```bash
-curl -X POST 'http://localhost:7777/workflows/octave-clone-complete-sales-intelligence-pipeline/runs' \
+curl -X POST 'http://localhost:7777/workflows/playbook-ai-sales-intelligence-pipeline/runs' \
   -H 'Content-Type: application/json' \
   -d '{
     "vendor_domain": "octavehq.com",

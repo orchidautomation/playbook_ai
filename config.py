@@ -1,6 +1,7 @@
 """
-Octave Clone MVP - Configuration
+Playbook AI - Configuration
 Loads environment variables and defines workflow settings.
+https://github.com/orchidautomation/playbook_ai-oss
 """
 
 import os

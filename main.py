@@ -1,5 +1,5 @@
 """
-Octave Clone MVP - Main Entry Point
+Playbook AI - Main Entry Point
 CLI for running the complete sales intelligence pipeline (all 4 phases).
 
 Usage:
@@ -11,6 +11,8 @@ Examples (all formats accepted):
     python main.py www.octavehq.com www.sendoso.com
 
 All domain formats are automatically normalized to https://
+
+https://github.com/orchidautomation/playbook_ai-oss
 """
 
 import sys
