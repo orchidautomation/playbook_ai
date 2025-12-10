@@ -50,10 +50,10 @@ htmlcov/
 !railway.json
 
 # Run outputs (should not be committed)
-output/runs/
-output/run_*/
+output/
 complete_output_*.json
 phase*_output_*.json
+playbook_output_*.json
 
 # Logs
 *.log
