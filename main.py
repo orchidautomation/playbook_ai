@@ -18,7 +18,8 @@ https://github.com/orchidautomation/playbook_ai-oss
 import sys
 import json
 import os
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 from agno.workflow import Workflow, Step, Parallel
 from models.workflow_input import WorkflowInput
 
@@ -202,6 +203,9 @@ def main():
     }
 
     try:
+        # Capture start time for duration tracking
+        start_time = time.time()
+
         # Run workflow with streaming (single execution)
         print("🔥 Workflow executing with real-time visualization...\n")
         response_stream = workflow.run(input=workflow_input, stream=True)
@@ -239,170 +243,178 @@ def main():
                                 return sub_step.content
             return None
 
-        # Save results in organized directory structure
+        # Calculate duration
+        end_time = time.time()
+        duration_seconds = round(end_time - start_time, 2)
+
+        # Create timestamp and run directory
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         run_dir = f"output/runs/{timestamp}"
         os.makedirs(run_dir, exist_ok=True)
 
-        # Save metadata about the run
+        # Create research subdirectories (consolidated structure)
+        vendor_dir = f"{run_dir}/research/vendor"
+        prospect_dir = f"{run_dir}/research/prospect"
+        os.makedirs(vendor_dir, exist_ok=True)
+        os.makedirs(prospect_dir, exist_ok=True)
+
+        # === EXTRACT ALL STEP CONTENT ===
+
+        # Step 6: Vendor extraction (8 extractors)
+        offerings = get_parallel_substep_content(result.step_results, "vendor_element_extraction", "extract_offerings") or {}
+        case_studies = get_parallel_substep_content(result.step_results, "vendor_element_extraction", "extract_case_studies") or {}
+        proof_points = get_parallel_substep_content(result.step_results, "vendor_element_extraction", "extract_proof_points") or {}
+        value_props = get_parallel_substep_content(result.step_results, "vendor_element_extraction", "extract_value_props") or {}
+        customers = get_parallel_substep_content(result.step_results, "vendor_element_extraction", "extract_customers") or {}
+        use_cases = get_parallel_substep_content(result.step_results, "vendor_element_extraction", "extract_use_cases") or {}
+        personas = get_parallel_substep_content(result.step_results, "vendor_element_extraction", "extract_personas") or {}
+        differentiators = get_parallel_substep_content(result.step_results, "vendor_element_extraction", "extract_differentiators") or {}
+
+        # Step 7: Prospect analysis (3 analysts)
+        company_profile = get_parallel_substep_content(result.step_results, "prospect_context_analysis", "analyze_company") or {}
+        pain_points = get_parallel_substep_content(result.step_results, "prospect_context_analysis", "analyze_pain_points") or {}
+        buyer_personas = get_step_content_by_name(result.step_results, "identify_buyer_personas") or {}
+
+        # Step 8: Playbook generation (5 components)
+        playbook_summary = get_step_content_by_name(result.step_results, "generate_playbook_summary") or {}
+        email_sequences = get_parallel_substep_content(result.step_results, "playbook_component_generation", "generate_email_sequences") or {}
+        talk_tracks = get_parallel_substep_content(result.step_results, "playbook_component_generation", "generate_talk_tracks") or {}
+        battle_cards = get_parallel_substep_content(result.step_results, "playbook_component_generation", "generate_battle_cards") or {}
+        final_playbook = get_step_content_by_name(result.step_results, "assemble_final_playbook") or {}
+
+        # === SAVE CONSOLIDATED FILES ===
+
+        # 1. Vendor Research Files (5 files, consolidated from 8)
+
+        # offerings.json - keep as-is
+        with open(f"{vendor_dir}/offerings.json", "w") as f:
+            json.dump(offerings, f, indent=2)
+
+        # customer_evidence.json - merge: case_studies + proof_points + customers
+        customer_evidence = {
+            "case_studies": case_studies.get("case_studies", []) if isinstance(case_studies, dict) else [],
+            "proof_points": proof_points.get("proof_points", []) if isinstance(proof_points, dict) else [],
+            "customers": customers.get("customers", []) if isinstance(customers, dict) else []
+        }
+        with open(f"{vendor_dir}/customer_evidence.json", "w") as f:
+            json.dump(customer_evidence, f, indent=2)
+
+        # positioning.json - merge: differentiators + value_props
+        positioning = {
+            "differentiators": differentiators.get("differentiators", []) if isinstance(differentiators, dict) else [],
+            "value_propositions": value_props.get("value_propositions", []) if isinstance(value_props, dict) else []
+        }
+        with open(f"{vendor_dir}/positioning.json", "w") as f:
+            json.dump(positioning, f, indent=2)
+
+        # personas.json - keep as-is
+        with open(f"{vendor_dir}/personas.json", "w") as f:
+            json.dump(personas, f, indent=2)
+
+        # use_cases.json - keep as-is
+        with open(f"{vendor_dir}/use_cases.json", "w") as f:
+            json.dump(use_cases, f, indent=2)
+
+        # 2. Prospect Research Files (1 file, consolidated from 3)
+
+        # analysis.json - merge: company_profile + pain_points + buyer_personas
+        prospect_analysis = {
+            "company_profile": company_profile.get("company_profile", company_profile) if isinstance(company_profile, dict) else {},
+            "pain_points": pain_points.get("pain_points", []) if isinstance(pain_points, dict) else [],
+            "buyer_personas": buyer_personas.get("target_buyer_personas", []) if isinstance(buyer_personas, dict) else []
+        }
+        with open(f"{prospect_dir}/analysis.json", "w") as f:
+            json.dump(prospect_analysis, f, indent=2)
+
+        # 3. Main Playbook (1 file - merge playbook_summary + final_playbook)
+
+        playbook = {}
+
+        # From playbook_summary - strategic context and intelligence
+        if isinstance(playbook_summary, dict):
+            playbook["executive_summary"] = playbook_summary.get("executive_summary", "")
+            playbook["priority_personas"] = playbook_summary.get("priority_personas", [])
+            playbook["quick_wins"] = playbook_summary.get("quick_wins", [])
+            playbook["success_metrics"] = playbook_summary.get("success_metrics", {})
+            playbook["vendor_intelligence"] = playbook_summary.get("vendor_intelligence", {})
+            playbook["prospect_intelligence"] = playbook_summary.get("prospect_intelligence", {})
+
+        # From final_playbook - tactical content
+        if isinstance(final_playbook, dict):
+            sales_playbook = final_playbook.get("sales_playbook", {})
+            playbook["vendor_name"] = sales_playbook.get("vendor_name", "")
+            playbook["prospect_name"] = sales_playbook.get("prospect_name", "")
+            playbook["generated_date"] = sales_playbook.get("generated_date", timestamp[:8])
+            playbook["email_sequences"] = sales_playbook.get("email_sequences", [])
+            playbook["talk_tracks"] = sales_playbook.get("talk_tracks", [])
+            playbook["battle_cards"] = sales_playbook.get("battle_cards", [])
+
+        with open(f"{run_dir}/playbook.json", "w") as f:
+            json.dump(playbook, f, indent=2)
+
+        # 4. Enhanced Metadata
+
         metadata = {
-            "timestamp": timestamp,
-            "vendor_domain": vendor_domain,
-            "prospect_domain": prospect_domain,
+            "run_id": timestamp,
+            "timestamp_start": (datetime.now() - timedelta(seconds=duration_seconds)).isoformat(),
+            "timestamp_end": datetime.now().isoformat(),
+            "duration_seconds": duration_seconds,
             "workflow_name": workflow.name,
-            "completed_at": datetime.now().isoformat()
+            "workflow_version": "2.0.0",
+            "status": "completed",
+            "inputs": {
+                "vendor_domain": vendor_domain,
+                "prospect_domain": prospect_domain
+            },
+            "outputs": {
+                "vendor_name": playbook.get("vendor_name", ""),
+                "prospect_name": playbook.get("prospect_name", ""),
+                "persona_count": len(playbook.get("priority_personas", [])),
+                "email_sequence_count": len(playbook.get("email_sequences", [])),
+                "talk_track_count": len(playbook.get("talk_tracks", [])),
+                "battle_card_count": len(playbook.get("battle_cards", []))
+            },
+            "file_manifest": {
+                "playbook": "playbook.json",
+                "research": {
+                    "vendor": [
+                        "research/vendor/offerings.json",
+                        "research/vendor/customer_evidence.json",
+                        "research/vendor/positioning.json",
+                        "research/vendor/personas.json",
+                        "research/vendor/use_cases.json"
+                    ],
+                    "prospect": [
+                        "research/prospect/analysis.json"
+                    ]
+                }
+            }
         }
 
         with open(f"{run_dir}/metadata.json", "w") as f:
             json.dump(metadata, f, indent=2)
 
-        # Save Step 6: Vendor element extraction (all 8 extractors)
-        # Create subdirectory for Step 6 outputs
-        step6_dir = f"{run_dir}/step6_vendor_extraction"
-        os.makedirs(step6_dir, exist_ok=True)
+        # === DISPLAY SUCCESS MESSAGE ===
 
-        step6_extractors = {
-            "extract_offerings": "offerings.json",
-            "extract_case_studies": "case_studies.json",
-            "extract_proof_points": "proof_points.json",
-            "extract_value_props": "value_props.json",
-            "extract_customers": "customers.json",
-            "extract_use_cases": "use_cases.json",
-            "extract_personas": "personas.json",
-            "extract_differentiators": "differentiators.json"
-        }
-
-        for extractor_name, filename in step6_extractors.items():
-            try:
-                content = get_parallel_substep_content(result.step_results, "vendor_element_extraction", extractor_name)
-                with open(f"{step6_dir}/{filename}", "w") as f:
-                    json.dump(content if content else {}, f, indent=2)
-            except Exception as e:
-                print(f"Warning: Could not save {filename}: {e}")
-                with open(f"{step6_dir}/{filename}", "w") as f:
-                    json.dump({"error": str(e)}, f, indent=2)
-
-        # Save Step 7: Prospect analysis (all 3 analysts)
-        # Create subdirectory for Step 7 outputs
-        step7_dir = f"{run_dir}/step7_prospect_analysis"
-        os.makedirs(step7_dir, exist_ok=True)
-
-        # Step 7a: Parallel analysts
-        step7_parallel_analysts = {
-            "analyze_company": "company_profile.json",
-            "analyze_pain_points": "pain_points.json"
-        }
-
-        for analyst_name, filename in step7_parallel_analysts.items():
-            try:
-                content = get_parallel_substep_content(result.step_results, "prospect_context_analysis", analyst_name)
-                with open(f"{step7_dir}/{filename}", "w") as f:
-                    json.dump(content if content else {}, f, indent=2)
-            except Exception as e:
-                print(f"Warning: Could not save {filename}: {e}")
-                with open(f"{step7_dir}/{filename}", "w") as f:
-                    json.dump({"error": str(e)}, f, indent=2)
-
-        # Step 7b: Buyer personas (sequential)
-        try:
-            personas_content = get_step_content_by_name(result.step_results, "identify_buyer_personas")
-            with open(f"{step7_dir}/buyer_personas.json", "w") as f:
-                json.dump(personas_content if personas_content else {}, f, indent=2)
-        except Exception as e:
-            print(f"Warning: Could not save buyer_personas.json: {e}")
-            with open(f"{step7_dir}/buyer_personas.json", "w") as f:
-                json.dump({"error": str(e)}, f, indent=2)
-
-        # Save Step 8: Playbook generation (all components)
-        # Create subdirectory for Step 8 outputs
-        step8_dir = f"{run_dir}/step8_playbook_generation"
-        os.makedirs(step8_dir, exist_ok=True)
-
-        # Step 8a: Summary (sequential)
-        try:
-            summary = get_step_content_by_name(result.step_results, "generate_playbook_summary")
-            with open(f"{step8_dir}/playbook_summary.json", "w") as f:
-                json.dump(summary if summary else {}, f, indent=2)
-        except Exception as e:
-            print(f"Warning: Could not save playbook_summary.json: {e}")
-            with open(f"{step8_dir}/playbook_summary.json", "w") as f:
-                json.dump({"error": str(e)}, f, indent=2)
-
-        # Step 8b-d: Parallel components
-        step8_parallel_components = {
-            "generate_email_sequences": "email_sequences.json",
-            "generate_talk_tracks": "talk_tracks.json",
-            "generate_battle_cards": "battle_cards.json"
-        }
-
-        for component_name, filename in step8_parallel_components.items():
-            try:
-                content = get_parallel_substep_content(result.step_results, "playbook_component_generation", component_name)
-                with open(f"{step8_dir}/{filename}", "w") as f:
-                    json.dump(content if content else {}, f, indent=2)
-            except Exception as e:
-                print(f"Warning: Could not save {filename}: {e}")
-                with open(f"{step8_dir}/{filename}", "w") as f:
-                    json.dump({"error": str(e)}, f, indent=2)
-
-        # Step 8e: Final assembly (sequential)
-        try:
-            final_playbook = get_step_content_by_name(result.step_results, "assemble_final_playbook")
-            with open(f"{step8_dir}/final_playbook.json", "w") as f:
-                json.dump(final_playbook if final_playbook else {}, f, indent=2)
-        except Exception as e:
-            print(f"Warning: Could not save final_playbook.json: {e}")
-            with open(f"{step8_dir}/final_playbook.json", "w") as f:
-                json.dump({"error": str(e)}, f, indent=2)
-
-        # Also save the complete final output for backwards compatibility
-        output_filename = f"{run_dir}/complete_output.json"
-        with open(output_filename, "w") as f:
-            json.dump(result.content, f, indent=2)
-
-        # Display success message
         print("\n" + "=" * 80)
         print("✅ COMPLETE WORKFLOW FINISHED!")
         print("=" * 80)
 
-        # Print summary
-        content = result.content
-        print(f"\n📁 All outputs saved to: {run_dir}/")
-        print(f"   • metadata.json - Run information")
-        print(f"   • step6_vendor_extraction/ - Vendor GTM elements (8 files)")
-        print(f"   • step7_prospect_analysis/ - Prospect insights (3 files)")
-        print(f"   • step8_playbook_generation/ - Playbook components (5 files)")
-        print(f"   • complete_output.json - Final assembled output\n")
-        print("📊 Pipeline Summary:")
+        print(f"\n📁 Outputs saved to: {run_dir}/")
+        print(f"   • playbook.json - Complete sales playbook (USE THIS)")
+        print(f"   • metadata.json - Run information and stats")
+        print(f"   • research/vendor/ - Raw vendor intelligence (5 files)")
+        print(f"   • research/prospect/ - Raw prospect analysis (1 file)")
 
-        # Phase 1 stats
-        print("\n  Phase 1 - Intelligence Gathering:")
-        print(f"    • Vendor URLs scraped: {len(content.get('vendor_content', {}))} pages")
-        print(f"    • Prospect URLs scraped: {len(content.get('prospect_content', {}))} pages")
+        print(f"\n⏱️  Duration: {duration_seconds:.1f} seconds")
 
-        stats = content.get('stats', {})
-        if stats:
-            print(f"    • Vendor content: {stats.get('vendor_chars', 0):,} characters")
-            print(f"    • Prospect content: {stats.get('prospect_chars', 0):,} characters")
-
-        # Phase 2-4 indicators
-        if 'vendor_elements' in content:
-            print("\n  Phase 2 - Vendor GTM Extraction:")
-            print(f"    • Extracted {len(content.get('vendor_elements', {}))} GTM elements")
-
-        if 'buyer_personas' in content:
-            print("\n  Phase 3 - Prospect Analysis:")
-            print(f"    • Identified {len(content.get('buyer_personas', []))} buyer personas")
-
-        if 'sales_playbook' in content:
-            print("\n  Phase 4 - Sales Playbook:")
-            playbook = content.get('sales_playbook', {})
-            if 'battle_cards' in playbook:
-                print(f"    • Battle cards: ✅")
-            if 'email_sequences' in playbook:
-                print(f"    • Email sequences: ✅")
-            if 'talk_tracks' in playbook:
-                print(f"    • Talk tracks: ✅")
+        print(f"\n📊 Playbook Stats:")
+        print(f"   • Vendor: {playbook.get('vendor_name', 'Unknown')}")
+        print(f"   • Prospect: {playbook.get('prospect_name', 'Unknown')}")
+        print(f"   • Personas: {len(playbook.get('priority_personas', []))}")
+        print(f"   • Email sequences: {len(playbook.get('email_sequences', []))}")
+        print(f"   • Talk tracks: {len(playbook.get('talk_tracks', []))}")
+        print(f"   • Battle cards: {len(playbook.get('battle_cards', []))}")
 
         print("\n" + "=" * 80)
         print("🎉 All phases complete! Sales playbook ready.")
