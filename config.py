@@ -38,9 +38,10 @@ BATCH_SCRAPE_POLL_INTERVAL = 2  # Poll every 2 seconds
 # - Supports structured outputs, function calling, tool use
 
 # Primary models for different task types
-DEFAULT_MODEL = OpenAIResponses(id="gpt-5.1")           # Complex reasoning, synthesis, creative writing
+# Note: gpt-5/gpt-5.1 require org verification - using gpt-4.1/gpt-4o as fallback
+DEFAULT_MODEL = OpenAIResponses(id="gpt-4.1")           # Complex reasoning, synthesis, creative writing
 FAST_MODEL = OpenAIResponses(id="gpt-4o-mini")          # Simple tasks, pattern matching (faster/cheaper)
-REASONING_MODEL = OpenAIResponses(id="gpt-5.1")         # Analysis, complex reasoning tasks
+REASONING_MODEL = OpenAIResponses(id="gpt-4.1")         # Analysis, complex reasoning tasks
 EXTRACTION_MODEL = OpenAIResponses(id="gpt-4o-mini")    # Data extraction, entity extraction (cheaper)
 
 # Legacy constant (kept for compatibility)
