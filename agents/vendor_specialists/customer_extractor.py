@@ -12,39 +12,14 @@ class ReferenceCustomersExtractionResult(BaseModel):
 customer_extractor = Agent(
     name="Reference Customer Extractor",
     model=config.EXTRACTION_MODEL,  # gpt-4o-mini for fast extraction
-    instructions="""
-    You are an expert at identifying customer references and logos.
-
-    Extract ALL customer references, logos, and company mentions.
-
-    For each reference:
-    - Name: Company name
-    - Logo URL: If visible (extract from page)
-    - Industry: If mentioned or inferable
-    - Company size: SMB/Mid-market/Enterprise if mentioned
-    - Relationship: customer, partner, integration, or other
-    - Sources: URLs where found (include page_type)
-
-    Look for:
-    - Customer logo walls
-    - "Trusted by" sections
-    - Partner pages
-    - Integration pages
-    - Case study customer names
-    - Testimonial attributions
-    - Customer listings
-
-    Capture ALL companies mentioned, even if minimal info available.
-
-    For relationship type:
-    - "customer": Paying customer using the product
-    - "partner": Business partner or reseller
-    - "integration": Technology integration partner
-    - "other": Unknown or other relationship
-
-    Extract company size indicators like:
-    - Fortune 500, Enterprise, SMB, Mid-market
-    - Employee count if mentioned
-    """,
+    description="Expert at identifying customer references, logos, and company mentions from B2B websites for sales intelligence.",
+    instructions=[
+        "Extract ALL customer references, logos, and company mentions from the content.",
+        "For each reference, capture: Name (company name), Logo URL (if visible), Industry (if mentioned or inferable), Company size (SMB/Mid-market/Enterprise), Relationship (customer/partner/integration/other), and Sources (URLs with page_type).",
+        "Look for customer logo walls, 'Trusted by' sections, partner pages, integration pages, case study customer names, testimonial attributions, and customer listings.",
+        "Capture ALL companies mentioned, even if minimal info available.",
+        "Relationship types: 'customer' (paying customer), 'partner' (business partner/reseller), 'integration' (technology integration partner), 'other' (unknown relationship).",
+        "Extract company size indicators like Fortune 500, Enterprise, SMB, Mid-market, or employee count if mentioned.",
+    ],
     output_schema=ReferenceCustomersExtractionResult
 )

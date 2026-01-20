@@ -4,7 +4,7 @@ Production-ready sales playbook data structures
 """
 
 from pydantic import BaseModel, Field
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Literal
 from models.common import Source
 
 
@@ -17,8 +17,8 @@ class EmailTouch(BaseModel):
     Single email touchpoint - designed for direct import to email sequencers
     (Lemlist, Smartlead, Instantly, etc.)
     """
-    touch_number: int = Field(description="Touch number in sequence (1-4)")
-    day: int = Field(description="Day number in sequence (1, 3, 7, 14)")
+    touch_number: int = Field(ge=1, le=4, description="Touch number in sequence (1-4)")
+    day: int = Field(ge=1, description="Day number in sequence (1, 3, 7, 14)")
     subject: str = Field(description="Email subject line - maps to sequencer 'subject' field")
     body: str = Field(description="Email body with personalization tokens - maps to sequencer 'body' field")
     personalization_notes: List[str] = Field(
@@ -58,8 +58,8 @@ class DiscoveryQuestion(BaseModel):
 
 class CallScript(BaseModel):
     """Script for a specific type of sales call"""
-    script_type: str = Field(
-        description="Type: cold_call, discovery, demo, follow_up"
+    script_type: Literal["cold_call", "discovery", "demo", "follow_up"] = Field(
+        description="Type of call script"
     )
     persona_title: str = Field(description="Who you're calling")
     opening: str = Field(description="How to open the call (first 30 seconds)")
@@ -102,8 +102,8 @@ class TalkTrack(BaseModel):
 class ObjectionResponse(BaseModel):
     """How to handle a specific objection"""
     objection: str = Field(description="The objection")
-    category: str = Field(
-        description="Category: price, timing, authority, need, competitor"
+    category: Literal["price", "timing", "authority", "need", "competitor"] = Field(
+        description="Objection category"
     )
     response_framework: str = Field(
         description="How to respond (e.g., 'Acknowledge → Reframe → Proof')"
@@ -150,8 +150,8 @@ class CompetitivePositioning(BaseModel):
 class BattleCard(BaseModel):
     """Battle card for sales enablement"""
     title: str = Field(description="Battle card name")
-    card_type: str = Field(
-        description="Type: why_we_win, objection_handling, competitive_positioning"
+    card_type: Literal["why_we_win", "objection_handling", "competitive_positioning"] = Field(
+        description="Type of battle card"
     )
     persona_focus: Optional[str] = Field(
         default=None,
@@ -183,9 +183,9 @@ class SalesPlaybook(BaseModel):
     """Complete sales playbook for vendor → prospect engagement"""
 
     # Metadata
-    vendor_name: str
-    prospect_name: str
-    generated_date: str
+    vendor_name: str = Field(description="Name of the vendor/seller company")
+    prospect_name: str = Field(description="Name of the prospect/target company")
+    generated_date: str = Field(description="Date the playbook was generated (ISO format)")
 
     # Executive Summary
     executive_summary: str = Field(

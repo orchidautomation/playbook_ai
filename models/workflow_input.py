@@ -4,7 +4,7 @@ Pydantic models for workflow input validation with automatic domain normalizatio
 Supports AgentOS API integration with structured input schemas.
 """
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 from utils.workflow_helpers import normalize_domain
 
 
@@ -26,36 +26,20 @@ class WorkflowInput(BaseModel):
     3. Type safety for workflow parameters
     """
 
-    vendor_domain: str
-    prospect_domain: str
+    vendor_domain: str = Field(
+        description="Vendor's website domain (e.g., 'sendoso.com' or 'https://sendoso.com')"
+    )
+    prospect_domain: str = Field(
+        description="Prospect's website domain (e.g., 'octavehq.com' or 'https://octavehq.com')"
+    )
 
-    @field_validator('vendor_domain', mode='before')
+    @field_validator('vendor_domain', 'prospect_domain', mode='before')
     @classmethod
-    def normalize_vendor_domain(cls, v):
-        """Normalize vendor domain to https:// format"""
+    def normalize_domain_field(cls, v, info):
+        """Normalize domain to https:// format"""
         if not v:
-            raise ValueError("vendor_domain is required")
+            raise ValueError(f"{info.field_name} is required")
         return normalize_domain(v)
-
-    @field_validator('prospect_domain', mode='before')
-    @classmethod
-    def normalize_prospect_domain(cls, v):
-        """Normalize prospect domain to https:// format"""
-        if not v:
-            raise ValueError("prospect_domain is required")
-        return normalize_domain(v)
-
-    def to_workflow_dict(self) -> dict:
-        """
-        Convert to dictionary format expected by Agno workflow.
-
-        Returns:
-            Dict with vendor_domain and prospect_domain keys
-        """
-        return {
-            "vendor_domain": self.vendor_domain,
-            "prospect_domain": self.prospect_domain
-        }
 
 
 # Example usage:
@@ -67,5 +51,5 @@ class WorkflowInput(BaseModel):
 #     prospect_domain="www.octavehq.com"     # Auto-normalized to https://octavehq.com
 # )
 #
-# # Use with workflow
-# workflow.print_response(input=user_input.to_workflow_dict(), stream=True)
+# # Use with workflow (Pydantic v2 model_dump() replaces custom to_workflow_dict())
+# workflow.print_response(input=user_input.model_dump(), stream=True)

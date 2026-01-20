@@ -19,29 +19,38 @@ def validate_vendor_domain(step_input: StepInput) -> StepOutput:
     Returns:
         StepOutput with vendor_domain, vendor_urls, vendor_total_urls
     """
-    # Get vendor domain from workflow input (Pydantic model from AgentOS)
-    vendor_domain = step_input.input.vendor_domain
+    try:
+        # Defensive check
+        if not step_input.input:
+            return create_error_response("No workflow input provided")
 
-    # Validate domain format
-    is_valid, error_msg = validate_single_domain(vendor_domain, "vendor_domain")
-    if not is_valid:
-        return create_error_response(error_msg)
+        vendor_domain = getattr(step_input.input, 'vendor_domain', None)
+        if not vendor_domain:
+            return create_error_response("vendor_domain not provided in workflow input")
 
-    # Map the website
-    print(f"🔍 Mapping vendor domain: {vendor_domain}")
-    result = map_website(vendor_domain)  # Uses config.MAX_URLS_TO_MAP (5000)
+        # Validate domain format
+        is_valid, error_msg = validate_single_domain(vendor_domain, "vendor_domain")
+        if not is_valid:
+            return create_error_response(error_msg)
 
-    if not result["success"]:
-        error_msg = f"Failed to map vendor domain: {result.get('error', 'Unknown error')}"
-        return create_error_response(error_msg)
+        # Map the website
+        print(f"🔍 Mapping vendor domain: {vendor_domain}")
+        result = map_website(vendor_domain)  # Uses config.MAX_URLS_TO_MAP (5000)
 
-    print(f"✅ Found {result['total_urls']} URLs for vendor")
+        if not result["success"]:
+            error_msg = f"Failed to map vendor domain: {result.get('error', 'Unknown error')}"
+            return create_error_response(error_msg)
 
-    return create_success_response({
-        "vendor_domain": vendor_domain,
-        "vendor_urls": result["urls"],
-        "vendor_total_urls": result["total_urls"]
-    })
+        print(f"✅ Found {result['total_urls']} URLs for vendor")
+
+        return create_success_response({
+            "vendor_domain": vendor_domain,
+            "vendor_urls": result["urls"],
+            "vendor_total_urls": result["total_urls"]
+        })
+
+    except Exception as e:
+        return create_error_response(f"Vendor domain validation failed: {str(e)}")
 
 
 def validate_prospect_domain(step_input: StepInput) -> StepOutput:
@@ -54,26 +63,35 @@ def validate_prospect_domain(step_input: StepInput) -> StepOutput:
     Returns:
         StepOutput with prospect_domain, prospect_urls, prospect_total_urls
     """
-    # Get prospect domain from workflow input (Pydantic model from AgentOS)
-    prospect_domain = step_input.input.prospect_domain
+    try:
+        # Defensive check
+        if not step_input.input:
+            return create_error_response("No workflow input provided")
 
-    # Validate domain format
-    is_valid, error_msg = validate_single_domain(prospect_domain, "prospect_domain")
-    if not is_valid:
-        return create_error_response(error_msg)
+        prospect_domain = getattr(step_input.input, 'prospect_domain', None)
+        if not prospect_domain:
+            return create_error_response("prospect_domain not provided in workflow input")
 
-    # Map the website
-    print(f"🔍 Mapping prospect domain: {prospect_domain}")
-    result = map_website(prospect_domain)  # Uses config.MAX_URLS_TO_MAP (5000)
+        # Validate domain format
+        is_valid, error_msg = validate_single_domain(prospect_domain, "prospect_domain")
+        if not is_valid:
+            return create_error_response(error_msg)
 
-    if not result["success"]:
-        error_msg = f"Failed to map prospect domain: {result.get('error', 'Unknown error')}"
-        return create_error_response(error_msg)
+        # Map the website
+        print(f"🔍 Mapping prospect domain: {prospect_domain}")
+        result = map_website(prospect_domain)  # Uses config.MAX_URLS_TO_MAP (5000)
 
-    print(f"✅ Found {result['total_urls']} URLs for prospect")
+        if not result["success"]:
+            error_msg = f"Failed to map prospect domain: {result.get('error', 'Unknown error')}"
+            return create_error_response(error_msg)
 
-    return create_success_response({
-        "prospect_domain": prospect_domain,
-        "prospect_urls": result["urls"],
-        "prospect_total_urls": result["total_urls"]
-    })
+        print(f"✅ Found {result['total_urls']} URLs for prospect")
+
+        return create_success_response({
+            "prospect_domain": prospect_domain,
+            "prospect_urls": result["urls"],
+            "prospect_total_urls": result["total_urls"]
+        })
+
+    except Exception as e:
+        return create_error_response(f"Prospect domain validation failed: {str(e)}")

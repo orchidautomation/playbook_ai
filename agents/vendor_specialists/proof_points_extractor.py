@@ -12,32 +12,13 @@ class ProofPointsExtractionResult(BaseModel):
 proof_points_extractor = Agent(
     name="Proof Points Extractor",
     model=config.EXTRACTION_MODEL,  # gpt-4o-mini for fast extraction
-    instructions="""
-    You are an expert at identifying credibility indicators and social proof.
-
-    Extract ALL proof points including:
-    - Testimonials: Customer quotes and endorsements
-    - Statistics: Usage stats (X customers, Y% growth, Z awards)
-    - Awards: Industry recognition, certifications, badges
-    - Certifications: Compliance, security, industry standards
-
-    For each proof point:
-    - Type: testimonial, statistic, award, or certification
-    - Content: The actual proof point text
-    - Source attribution: Who said it or where from (if applicable)
-    - Sources: URLs where found (include page_type)
-
-    Look across all pages for credibility indicators:
-    - Customer testimonials and quotes
-    - "Trusted by X companies"
-    - Industry awards and recognition
-    - Compliance badges (SOC2, GDPR, etc.)
-    - Usage statistics
-    - Growth metrics
-    - Customer satisfaction scores
-
-    Return comprehensive list of ALL proof points.
-    Capture exact wording and attribution when available.
-    """,
+    description="Expert at identifying credibility indicators, social proof, testimonials, statistics, awards, and certifications from company content.",
+    instructions=[
+        "Extract ALL proof points including: Testimonials (customer quotes and endorsements), Statistics (usage stats, growth metrics), Awards (industry recognition, badges), and Certifications (compliance, security, industry standards).",
+        "For each proof point, capture: Type (testimonial/statistic/award/certification), Content (actual proof point text), Source attribution (who said it or where from), and Sources (URLs with page_type).",
+        "Look across all pages for credibility indicators: customer testimonials, 'Trusted by X companies' statements, industry awards, compliance badges (SOC2, GDPR, etc.), usage statistics, growth metrics, and customer satisfaction scores.",
+        "Return comprehensive list of ALL proof points found.",
+        "Capture exact wording and attribution when available.",
+    ],
     output_schema=ProofPointsExtractionResult
 )

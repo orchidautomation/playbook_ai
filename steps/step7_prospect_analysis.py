@@ -2,7 +2,7 @@ from agno.workflow.types import StepInput, StepOutput
 from agents.prospect_specialists.company_analyst import company_analyst
 from agents.prospect_specialists.pain_point_analyst import pain_point_analyst
 from agents.prospect_specialists.buyer_persona_analyst import buyer_persona_analyst
-from utils.workflow_helpers import get_parallel_step_content, create_error_response, create_success_response
+from utils.workflow_helpers import get_parallel_step_content, create_error_response
 import json
 
 
@@ -13,19 +13,12 @@ def analyze_company_profile(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available"},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         prospect_content = scrape_data.get("prospect_content", {})
 
         if not prospect_content:
-            print("⚠️  No prospect content found")
-            return StepOutput(
-                content={"error": "No prospect content available"},
-                success=False
-            )
+            return create_error_response("No prospect content available")
 
         # Combine prospect content
         full_content = "\n\n---\n\n".join([
@@ -40,6 +33,10 @@ def analyze_company_profile(step_input: StepInput) -> StepOutput:
             input=f"Extract company profile from this content:\n\n{full_content}"
         )
 
+        # Validate agent response
+        if not response or not response.content or not response.content.company_profile:
+            return create_error_response("Agent failed to extract company profile")
+
         company_profile = response.content.company_profile
         print(f"✅ Company profile extracted: {company_profile.company_name}")
 
@@ -49,11 +46,7 @@ def analyze_company_profile(step_input: StepInput) -> StepOutput:
         )
 
     except Exception as e:
-        print(f"❌ Error analyzing company profile: {str(e)}")
-        return StepOutput(
-            content={"error": str(e)},
-            success=False
-        )
+        return create_error_response(f"Error analyzing company profile: {str(e)}")
 
 
 def analyze_pain_points(step_input: StepInput) -> StepOutput:
@@ -63,16 +56,12 @@ def analyze_pain_points(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available", "pain_points": []},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         prospect_content = scrape_data.get("prospect_content", {})
 
         if not prospect_content:
-            print("⚠️  No prospect content found")
-            return StepOutput(content={"pain_points": []}, success=True)
+            return create_error_response("No prospect content found - cannot analyze pain points")
 
         # Combine prospect content
         full_content = "\n\n---\n\n".join([
@@ -87,6 +76,10 @@ def analyze_pain_points(step_input: StepInput) -> StepOutput:
             input=f"Infer pain points from this company's content:\n\n{full_content}"
         )
 
+        # Validate agent response
+        if not response or not response.content or not response.content.pain_points:
+            return create_error_response("Agent failed to identify pain points")
+
         pain_points = response.content.pain_points
         print(f"✅ Identified {len(pain_points)} pain points")
 
@@ -96,11 +89,7 @@ def analyze_pain_points(step_input: StepInput) -> StepOutput:
         )
 
     except Exception as e:
-        print(f"❌ Error analyzing pain points: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "pain_points": []},
-            success=False
-        )
+        return create_error_response(f"Error analyzing pain points: {str(e)}")
 
 
 def identify_buyer_personas(step_input: StepInput) -> StepOutput:
@@ -128,13 +117,7 @@ def identify_buyer_personas(step_input: StepInput) -> StepOutput:
         pain_points_data = get_parallel_step_content(step_input, "prospect_context_analysis", "analyze_pain_points")
 
         if not company_data or not vendor_value_props:
-            print("⚠️  Missing required data for persona identification")
-            print(f"      company_data is None: {company_data is None}")
-            print(f"      vendor_value_props is None: {vendor_value_props is None}")
-            return StepOutput(
-                content={"error": "Missing vendor or prospect data", "target_buyer_personas": []},
-                success=False
-            )
+            return create_error_response("Missing vendor or prospect data for persona identification")
 
         # Build comprehensive intelligence package
         vendor_intelligence = {
@@ -189,6 +172,10 @@ Make this actionable - these are the specific people at this account that sales 
         # Run agent
         response = buyer_persona_analyst.run(input=prompt)
 
+        # Validate agent response
+        if not response or not response.content or not response.content.target_buyer_personas:
+            return create_error_response("Agent failed to identify buyer personas")
+
         personas = response.content.target_buyer_personas
         print(f"✅ Identified {len(personas)} target buyer personas")
 
@@ -202,8 +189,4 @@ Make this actionable - these are the specific people at this account that sales 
         )
 
     except Exception as e:
-        print(f"❌ Error identifying buyer personas: {str(e)}")
-        return StepOutput(
-            content={"error": str(e), "target_buyer_personas": []},
-            success=False
-        )
+        return create_error_response(f"Error identifying buyer personas: {str(e)}")

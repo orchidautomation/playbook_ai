@@ -44,7 +44,7 @@ def analyze_vendor_homepage(step_input: StepInput) -> StepOutput:
         })
 
     except Exception as e:
-        return create_error_response(f"AI analysis failed: {str(e)}")
+        return create_error_response(f"AI analysis failed ({type(e).__name__}): {str(e)}")
 
 
 def analyze_prospect_homepage(step_input: StepInput) -> StepOutput:
@@ -82,4 +82,4 @@ def analyze_prospect_homepage(step_input: StepInput) -> StepOutput:
         })
 
     except Exception as e:
-        return create_error_response(f"AI analysis failed: {str(e)}")
+        return create_error_response(f"AI analysis failed ({type(e).__name__}): {str(e)}")

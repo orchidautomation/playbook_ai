@@ -63,10 +63,14 @@ def batch_scrape_selected_pages(step_input: StepInput) -> StepOutput:
         prospect_content = {}
 
         for url, data in scraped_results.items():
+            markdown = data.get("markdown", "")
+            if not markdown:
+                print(f"    Warning: No markdown content for {url}")
+                continue
             if url in vendor_urls:
-                vendor_content[url] = data["markdown"]
+                vendor_content[url] = markdown
             elif url in prospect_urls:
-                prospect_content[url] = data["markdown"]
+                prospect_content[url] = markdown
 
         print(f"✅ Scraped {len(vendor_content)} vendor pages and {len(prospect_content)} prospect pages")
 

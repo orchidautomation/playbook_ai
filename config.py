@@ -6,6 +6,7 @@ https://github.com/orchidautomation/playbook_ai-oss
 
 import os
 from dotenv import load_dotenv
+from agno.models.openai import OpenAIResponses
 
 # Load environment variables from .env file
 load_dotenv()
@@ -37,10 +38,10 @@ BATCH_SCRAPE_POLL_INTERVAL = 2  # Poll every 2 seconds
 # - Supports structured outputs, function calling, tool use
 
 # Primary models for different task types
-DEFAULT_MODEL = "openai:gpt-5.1"           # Complex reasoning, synthesis, creative writing
-FAST_MODEL = "openai:gpt-5.1"              # Simple tasks, pattern matching
-REASONING_MODEL = "openai:gpt-5.1"         # Analysis, complex reasoning tasks
-EXTRACTION_MODEL = "openai:gpt-5.1"        # Data extraction, entity extraction
+DEFAULT_MODEL = OpenAIResponses(id="gpt-5.1")           # Complex reasoning, synthesis, creative writing
+FAST_MODEL = OpenAIResponses(id="gpt-4o-mini")          # Simple tasks, pattern matching (faster/cheaper)
+REASONING_MODEL = OpenAIResponses(id="gpt-5.1")         # Analysis, complex reasoning tasks
+EXTRACTION_MODEL = OpenAIResponses(id="gpt-4o-mini")    # Data extraction, entity extraction (cheaper)
 
 # Legacy constant (kept for compatibility)
 OPENAI_MODEL = "gpt-4o"
@@ -57,6 +58,9 @@ SCRAPE_MAX_AGE = 172800000  # 48 hours in milliseconds (2 days)
 
 # URL Mapping Configuration
 MAX_URLS_TO_MAP = 5000  # Maximum URLs to discover per domain
+
+# URL Prioritization Configuration
+MAX_URLS_FOR_PRIORITIZATION = 200  # Maximum URLs to send to prioritization agent
 
 # Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

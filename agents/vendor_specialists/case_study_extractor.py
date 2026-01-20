@@ -12,30 +12,13 @@ class CaseStudiesExtractionResult(BaseModel):
 case_study_extractor = Agent(
     name="Case Study Extractor",
     model=config.EXTRACTION_MODEL,  # gpt-4o-mini for fast extraction
-    instructions="""
-    You are an expert at extracting customer success stories and case studies.
-
-    Extract ALL case studies, customer stories, and success examples.
-
-    For each case study, extract:
-    - Customer name: Company name
-    - Industry: Their industry (if mentioned)
-    - Company size: SMB, Mid-market, Enterprise (if mentioned)
-    - Challenge: Problem they faced
-    - Solution: How vendor helped
-    - Results: List of outcomes achieved
-    - Metrics: Quantified results (%, $, time saved, etc.)
-    - Sources: URLs where found (include page_type)
-
-    Look for:
-    - /customers, /case-studies, /success-stories pages
-    - Customer testimonials with details
-    - Homepage customer highlights
-    - "Customer stories" sections
-    - Detailed success narratives
-
-    Return all case studies found with complete details.
-    Extract metrics whenever available - numbers matter.
-    """,
+    description="Expert at extracting customer success stories, case studies, and detailed success narratives from B2B company websites.",
+    instructions=[
+        "Extract ALL case studies, customer stories, and success examples from the provided content.",
+        "For each case study, extract: Customer name, Industry, Company size (SMB/Mid-market/Enterprise), Challenge (problem faced), Solution (how vendor helped), Results (outcomes achieved), Metrics (quantified results like %, $, time saved), and Sources (URLs with page_type).",
+        "Look for /customers, /case-studies, /success-stories pages, customer testimonials with details, homepage customer highlights, and detailed success narratives.",
+        "Return all case studies found with complete details.",
+        "Extract metrics whenever available - numbers matter for sales intelligence.",
+    ],
     output_schema=CaseStudiesExtractionResult
 )

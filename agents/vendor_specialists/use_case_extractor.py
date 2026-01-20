@@ -12,42 +12,13 @@ class UseCasesExtractionResult(BaseModel):
 use_case_extractor = Agent(
     name="Use Case Extractor",
     model=config.EXTRACTION_MODEL,  # gpt-4o-mini for fast extraction
-    instructions="""
-    You are an expert at identifying use cases and workflow solutions.
-
-    Extract ALL use cases - specific ways customers use the product.
-
-    For each use case:
-    - Title: Name of the use case
-    - Description: What this use case accomplishes
-    - Target persona: Who uses this (if mentioned)
-    - Target industry: Industry focus (if mentioned)
-    - Problems solved: List of problems addressed
-    - Key features used: Features relevant to this use case
-    - Sources: URLs where found (include page_type)
-
-    Look for:
-    - /use-cases pages
-    - /solutions pages
-    - /industries pages
-    - Workflow descriptions
-    - "How to" sections
-    - Problem-solution narratives
-    - Industry-specific solutions
-
-    Capture both broad and specific use cases.
-
-    Examples:
-    - "Lead qualification automation"
-    - "Customer onboarding workflows"
-    - "Sales forecasting"
-    - "Marketing campaign attribution"
-
-    For each use case, identify:
-    - What workflow or process it addresses
-    - What problem it solves
-    - Who typically uses it
-    - What product features enable it
-    """,
+    description="Expert at identifying use cases, workflow solutions, and specific ways customers use B2B products.",
+    instructions=[
+        "Extract ALL use cases - specific ways customers use the product.",
+        "For each use case, capture: Title (name), Description (what it accomplishes), Target persona (who uses it), Target industry (industry focus), Problems solved (list of problems addressed), Key features used, and Sources (URLs with page_type).",
+        "Look for /use-cases pages, /solutions pages, /industries pages, workflow descriptions, 'How to' sections, problem-solution narratives, and industry-specific solutions.",
+        "Capture both broad and specific use cases. Examples: 'Lead qualification automation', 'Customer onboarding workflows', 'Sales forecasting', 'Marketing campaign attribution'.",
+        "For each use case, identify: what workflow/process it addresses, what problem it solves, who typically uses it, and what product features enable it.",
+    ],
     output_schema=UseCasesExtractionResult
 )

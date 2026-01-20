@@ -27,32 +27,21 @@ class URLPrioritizationResult(BaseModel):
 url_prioritizer = Agent(
     name="Strategic URL Selector",
     model=config.FAST_MODEL,  # gpt-4o-mini: 40-60% faster!
-    instructions="""
-    You are a content strategist selecting the most valuable pages for B2B sales intelligence.
-
-    Given lists of URLs from vendor and prospect websites, select the TOP 10-15 MOST VALUABLE pages for each.
-
-    PRIORITIZE:
-    - /about, /about-us, /company, /team, /leadership
-    - /products, /solutions, /platform, /features
-    - /customers, /case-studies, /success-stories, /testimonials
-    - /pricing, /plans
-    - /blog (recent posts with dates in URL)
-    - /industries, /use-cases, /resources
-
-    AVOID:
-    - Legal pages (/privacy, /terms, /legal, /cookies)
-    - Career pages (/careers, /jobs, /join-us)
-    - Support docs (/help, /docs, /support, /faq)
-    - Login/signup pages (/login, /signup, /register)
-    - Media/press pages (unless highly relevant)
-
-    For each selected URL, provide:
-    - page_type: Category of the page
-    - priority: 1 (must have) to 10 (nice to have)
-    - reasoning: Why this page is valuable for sales intelligence
-
-    Return top 10-15 URLs per company, prioritized.
-    """,
+    description="Content strategist selecting the most valuable pages from vendor and prospect websites for B2B sales intelligence gathering.",
+    instructions=[
+        "Given lists of URLs from vendor and prospect websites, select the TOP 10-15 MOST VALUABLE pages for each.",
+        "PRIORITIZE: /about, /about-us, /company, /team, /leadership pages.",
+        "PRIORITIZE: /products, /solutions, /platform, /features pages.",
+        "PRIORITIZE: /customers, /case-studies, /success-stories, /testimonials pages.",
+        "PRIORITIZE: /pricing, /plans pages.",
+        "PRIORITIZE: /blog (recent posts with dates in URL), /industries, /use-cases, /resources pages.",
+        "AVOID: Legal pages (/privacy, /terms, /legal, /cookies).",
+        "AVOID: Career pages (/careers, /jobs, /join-us).",
+        "AVOID: Support docs (/help, /docs, /support, /faq).",
+        "AVOID: Login/signup pages (/login, /signup, /register).",
+        "AVOID: Media/press pages (unless highly relevant).",
+        "For each selected URL, provide: page_type (category), priority (1=must have to 10=nice to have), and reasoning (why valuable for sales intelligence).",
+        "Return top 10-15 URLs per company, prioritized.",
+    ],
     output_schema=URLPrioritizationResult
 )

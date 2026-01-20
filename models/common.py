@@ -4,6 +4,6 @@ from typing import Optional
 
 class Source(BaseModel):
     """Reference to where information was found"""
-    url: str
-    page_type: str = Field(description="e.g., 'homepage', 'case_study', 'about', 'pricing'")
+    url: str = Field(description="URL where the information was found")
+    page_type: str = Field(description="Page type classification, e.g., 'homepage', 'case_study', 'about', 'pricing'")
     excerpt: Optional[str] = Field(default=None, description="Relevant excerpt from the page")

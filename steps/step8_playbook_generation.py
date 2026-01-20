@@ -10,6 +10,7 @@ from agents.playbook_specialists.talk_track_creator import talk_track_creator
 from agents.playbook_specialists.battle_card_builder import battle_card_builder
 from utils.workflow_helpers import get_parallel_step_content, create_error_response, create_success_response
 import json
+import traceback
 from datetime import datetime
 from difflib import SequenceMatcher
 
@@ -169,12 +170,8 @@ Provide:
 
     except Exception as e:
         print(f"❌ Error generating playbook summary: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return StepOutput(
-            content={"error": str(e)},
-            success=False
-        )
+        return create_error_response(f"Error generating playbook summary: {str(e)}")
 
 
 def generate_email_sequences(step_input: StepInput) -> StepOutput:
@@ -188,10 +185,7 @@ def generate_email_sequences(step_input: StepInput) -> StepOutput:
         summary = step_input.get_step_content("generate_playbook_summary")
 
         if not summary or not summary.get("priority_personas"):
-            return StepOutput(
-                content={"error": "No playbook summary available", "email_sequences": []},
-                success=False
-            )
+            return create_error_response("No playbook summary available")
 
         priority_personas = summary["priority_personas"][:3]  # Top 3
         vendor_intel = summary["vendor_intelligence"]
@@ -250,12 +244,8 @@ Day 1, Day 3, Day 7, Day 14.
 
     except Exception as e:
         print(f"❌ Error generating email sequences: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return StepOutput(
-            content={"error": str(e), "email_sequences": []},
-            success=False
-        )
+        return create_error_response(f"Error generating email sequences: {str(e)}")
 
 
 def generate_talk_tracks(step_input: StepInput) -> StepOutput:
@@ -268,10 +258,7 @@ def generate_talk_tracks(step_input: StepInput) -> StepOutput:
         summary = step_input.get_step_content("generate_playbook_summary")
 
         if not summary:
-            return StepOutput(
-                content={"error": "No playbook summary", "talk_tracks": []},
-                success=False
-            )
+            return create_error_response("No playbook summary available")
 
         priority_personas = summary["priority_personas"][:3]
         vendor_intel = summary["vendor_intelligence"]
@@ -328,12 +315,8 @@ Create comprehensive talk tracks for this persona including:
 
     except Exception as e:
         print(f"❌ Error generating talk tracks: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return StepOutput(
-            content={"error": str(e), "talk_tracks": []},
-            success=False
-        )
+        return create_error_response(f"Error generating talk tracks: {str(e)}")
 
 
 def generate_battle_cards(step_input: StepInput) -> StepOutput:
@@ -346,10 +329,7 @@ def generate_battle_cards(step_input: StepInput) -> StepOutput:
         summary = step_input.get_step_content("generate_playbook_summary")
 
         if not summary:
-            return StepOutput(
-                content={"error": "No playbook summary", "battle_cards": []},
-                success=False
-            )
+            return create_error_response("No playbook summary available")
 
         vendor_intel = summary["vendor_intelligence"]
         prospect_intel = summary["prospect_intelligence"]
@@ -388,12 +368,8 @@ Include exact talk tracks.
 
     except Exception as e:
         print(f"❌ Error generating battle cards: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return StepOutput(
-            content={"error": str(e), "battle_cards": []},
-            success=False
-        )
+        return create_error_response(f"Error generating battle cards: {str(e)}")
 
 
 def assemble_final_playbook(step_input: StepInput) -> StepOutput:
@@ -411,6 +387,10 @@ def assemble_final_playbook(step_input: StepInput) -> StepOutput:
 
         # Get summary (sequential step before parallel)
         summary = step_input.get_step_content("generate_playbook_summary")
+
+        # Null guard for summary
+        if not summary:
+            return create_error_response("No playbook summary available")
 
         # Get vendor/prospect names
         vendor_name = summary["vendor_intelligence"]["offerings"][0]["name"] if summary["vendor_intelligence"].get("offerings") else "Vendor"
@@ -456,9 +436,5 @@ def assemble_final_playbook(step_input: StepInput) -> StepOutput:
 
     except Exception as e:
         print(f"❌ Error assembling final playbook: {str(e)}")
-        import traceback
         traceback.print_exc()
-        return StepOutput(
-            content={"error": str(e)},
-            success=False
-        )
+        return create_error_response(f"Error assembling final playbook: {str(e)}")

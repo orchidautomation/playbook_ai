@@ -24,10 +24,7 @@ def extract_offerings(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available", "offerings": []},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         vendor_content = scrape_data.get("vendor_content", {})
 
@@ -48,6 +45,10 @@ def extract_offerings(step_input: StepInput) -> StepOutput:
             input=f"Extract all offerings from this content:\n\n{full_content}"
         )
 
+        # Validate agent response
+        if not response.content or not hasattr(response.content, 'offerings'):
+            return create_error_response("Agent failed to extract offerings")
+
         offerings = response.content.offerings
         print(f"✅ Found {len(offerings)} offerings")
 
@@ -63,10 +64,7 @@ def extract_case_studies(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available", "case_studies": []},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         vendor_content = scrape_data.get("vendor_content", {})
 
@@ -85,6 +83,10 @@ def extract_case_studies(step_input: StepInput) -> StepOutput:
             input=f"Extract all case studies:\n\n{full_content}"
         )
 
+        # Validate agent response
+        if not response.content or not hasattr(response.content, 'case_studies'):
+            return create_error_response("Agent failed to extract case studies")
+
         case_studies = response.content.case_studies
         print(f"✅ Found {len(case_studies)} case studies")
 
@@ -100,10 +102,7 @@ def extract_proof_points(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available", "proof_points": []},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         vendor_content = scrape_data.get("vendor_content", {})
 
@@ -122,6 +121,10 @@ def extract_proof_points(step_input: StepInput) -> StepOutput:
             input=f"Extract all proof points:\n\n{full_content}"
         )
 
+        # Validate agent response
+        if not response.content or not hasattr(response.content, 'proof_points'):
+            return create_error_response("Agent failed to extract proof points")
+
         proof_points = response.content.proof_points
         print(f"✅ Found {len(proof_points)} proof points")
 
@@ -137,10 +140,7 @@ def extract_value_props(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available", "value_propositions": []},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         vendor_content = scrape_data.get("vendor_content", {})
 
@@ -159,6 +159,10 @@ def extract_value_props(step_input: StepInput) -> StepOutput:
             input=f"Extract all value propositions:\n\n{full_content}"
         )
 
+        # Validate agent response
+        if not response.content or not hasattr(response.content, 'value_propositions'):
+            return create_error_response("Agent failed to extract value propositions")
+
         value_props = response.content.value_propositions
         print(f"✅ Found {len(value_props)} value propositions")
 
@@ -174,10 +178,7 @@ def extract_customers(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available", "reference_customers": []},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         vendor_content = scrape_data.get("vendor_content", {})
 
@@ -196,6 +197,10 @@ def extract_customers(step_input: StepInput) -> StepOutput:
             input=f"Extract all reference customers:\n\n{full_content}"
         )
 
+        # Validate agent response
+        if not response.content or not hasattr(response.content, 'reference_customers'):
+            return create_error_response("Agent failed to extract reference customers")
+
         customers = response.content.reference_customers
         print(f"✅ Found {len(customers)} reference customers")
 
@@ -211,10 +216,7 @@ def extract_use_cases(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available", "use_cases": []},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         vendor_content = scrape_data.get("vendor_content", {})
 
@@ -232,6 +234,10 @@ def extract_use_cases(step_input: StepInput) -> StepOutput:
         response = use_case_extractor.run(
             input=f"Extract all use cases:\n\n{full_content}"
         )
+
+        # Validate agent response
+        if not response.content or not hasattr(response.content, 'use_cases'):
+            return create_error_response("Agent failed to extract use cases")
 
         use_cases = response.content.use_cases
         print(f"✅ Found {len(use_cases)} use cases")
@@ -253,10 +259,7 @@ def extract_personas(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available", "vendor_icp_personas": []},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         vendor_content = scrape_data.get("vendor_content", {})
 
@@ -275,6 +278,10 @@ def extract_personas(step_input: StepInput) -> StepOutput:
             input=f"Extract vendor's ICP (Ideal Customer Profile) personas - the types of buyers they typically sell to:\n\n{full_content}"
         )
 
+        # Validate agent response
+        if not response.content or not hasattr(response.content, 'target_personas'):
+            return create_error_response("Agent failed to extract personas")
+
         personas = response.content.target_personas
         print(f"✅ Found {len(personas)} vendor ICP personas")
 
@@ -290,10 +297,7 @@ def extract_differentiators(step_input: StepInput) -> StepOutput:
         scrape_data = step_input.get_step_content("batch_scrape")
 
         if not scrape_data:
-            return StepOutput(
-                content={"error": "No batch scrape data available", "differentiators": []},
-                success=False
-            )
+            return create_error_response("No batch scrape data available")
 
         vendor_content = scrape_data.get("vendor_content", {})
 
@@ -311,6 +315,10 @@ def extract_differentiators(step_input: StepInput) -> StepOutput:
         response = differentiator_extractor.run(
             input=f"Extract all competitive differentiators:\n\n{full_content}"
         )
+
+        # Validate agent response
+        if not response.content or not hasattr(response.content, 'differentiators'):
+            return create_error_response("Agent failed to extract differentiators")
 
         differentiators = response.content.differentiators
         print(f"✅ Found {len(differentiators)} differentiators")
