@@ -6,9 +6,9 @@ Usage:
     python main.py <vendor_domain> <prospect_domain>
 
 Examples (all formats accepted):
-    python main.py octavehq.com sendoso.com
-    python main.py https://octavehq.com https://sendoso.com
-    python main.py www.octavehq.com www.sendoso.com
+    python main.py gong.io sendoso.com
+    python main.py https://gong.io https://sendoso.com
+    python main.py www.gong.io www.sendoso.com
 
 All domain formats are automatically normalized to https://
 
@@ -60,7 +60,7 @@ from steps.step8_playbook_generation import (
 
 # Complete Sales Intelligence Pipeline - All 4 Phases (8 Steps)
 workflow = Workflow(
-    name="Octave Clone - Complete Sales Intelligence Pipeline",
+    name="Playbook AI - Sales Intelligence Pipeline",
     description="End-to-end: Intelligence, vendor extraction, prospect analysis, and actionable playbooks",
     input_schema=WorkflowInput,  # AgentOS API support with automatic domain normalization
     steps=[
@@ -145,13 +145,13 @@ def main():
     # Parse command line arguments
     if len(sys.argv) < 3:
         print("=" * 80)
-        print("OCTAVE CLONE MVP - COMPLETE SALES INTELLIGENCE PIPELINE")
+        print("PLAYBOOK AI - SALES INTELLIGENCE PIPELINE")
         print("=" * 80)
         print("\nUsage: python main.py <vendor_domain> <prospect_domain>")
         print("\nExamples (all formats work):")
-        print("  python main.py octavehq.com sendoso.com")
-        print("  python main.py https://octavehq.com https://sendoso.com")
-        print("  python main.py www.octavehq.com www.sendoso.com")
+        print("  python main.py gong.io sendoso.com")
+        print("  python main.py https://gong.io https://sendoso.com")
+        print("  python main.py www.gong.io www.sendoso.com")
         print("\nThis runs all 4 phases:")
         print("  Phase 1: Intelligence Gathering (Steps 1-5)")
         print("  Phase 2: Vendor GTM Extraction (Step 6)")
@@ -176,14 +176,14 @@ def main():
         print(f"\nError: {str(e)}")
         print("\nPlease provide valid domain names.")
         print("\nExamples:")
-        print("  python main.py octavehq.com sendoso.com")
-        print("  python main.py https://octavehq.com https://sendoso.com")
+        print("  python main.py gong.io sendoso.com")
+        print("  python main.py https://gong.io https://sendoso.com")
         print("=" * 80)
         sys.exit(1)
 
     # Display header
     print("\n" + "=" * 80)
-    print("OCTAVE CLONE MVP - COMPLETE SALES INTELLIGENCE PIPELINE")
+    print("PLAYBOOK AI - SALES INTELLIGENCE PIPELINE")
     print("=" * 80)
     print(f"\n📊 Vendor:   {vendor_domain}")
     print(f"🎯 Prospect: {prospect_domain}\n")

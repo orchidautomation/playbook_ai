@@ -10,7 +10,7 @@ from utils.workflow_helpers import normalize_domain
 
 class WorkflowInput(BaseModel):
     """
-    Input model for Octave Clone sales intelligence workflow.
+    Input model for Playbook AI sales intelligence workflow.
 
     Automatically normalizes domain inputs to https:// format, accepting:
     - sendoso.com
@@ -30,7 +30,7 @@ class WorkflowInput(BaseModel):
         description="Vendor's website domain (e.g., 'sendoso.com' or 'https://sendoso.com')"
     )
     prospect_domain: str = Field(
-        description="Prospect's website domain (e.g., 'octavehq.com' or 'https://octavehq.com')"
+        description="Prospect's website domain (e.g., 'outreach.io' or 'https://outreach.io')"
     )
 
     @field_validator('vendor_domain', 'prospect_domain', mode='before')
@@ -48,7 +48,7 @@ class WorkflowInput(BaseModel):
 # # User can provide flexible input
 # user_input = WorkflowInput(
 #     vendor_domain="sendoso.com",           # Auto-normalized to https://sendoso.com
-#     prospect_domain="www.octavehq.com"     # Auto-normalized to https://octavehq.com
+#     prospect_domain="www.outreach.io"      # Auto-normalized to https://outreach.io
 # )
 #
 # # Use with workflow (Pydantic v2 model_dump() replaces custom to_workflow_dict())

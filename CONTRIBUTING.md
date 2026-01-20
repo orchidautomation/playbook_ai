@@ -1,6 +1,6 @@
-# Contributing to OctaveHQ Clone
+# Contributing to Playbook AI
 
-Thank you for your interest in contributing to the OctaveHQ Clone project! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to the Playbook AI project! This document provides guidelines and instructions for contributing.
 
 ## Table of Contents
 
@@ -28,8 +28,8 @@ Thank you for your interest in contributing to the OctaveHQ Clone project! This 
 
 2. **Clone your fork**:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/octave-clone.git
-   cd octave-clone
+   git clone https://github.com/YOUR_USERNAME/playbook_ai-oss.git
+   cd playbook_ai-oss
    ```
 
 3. **Create virtual environment**:
@@ -90,7 +90,7 @@ def your_step(step_input: StepInput) -> StepOutput:
 
     # Fail-fast validation
     if not vendor_data:
-        error_msg = "❌ Vendor data missing - cannot proceed"
+        error_msg = "Vendor data missing - cannot proceed"
         print(f"\n{error_msg}")
         return StepOutput(content=error_msg, stop=True)
 
@@ -102,24 +102,21 @@ def your_step(step_input: StepInput) -> StepOutput:
 ## Project Structure
 
 ```
-octave-clone/
-├── workflows/              # Agno workflow definitions
+playbook_ai-oss/
+├── agents/                 # AI agent definitions
+│   ├── vendor_specialists/
+│   ├── prospect_specialists/
+│   └── playbook_specialists/
 ├── steps/                  # Individual step functions
 │   ├── step1_*.py
 │   ├── step2_*.py
 │   └── ...
-├── agents/                 # AI agent definitions
 ├── models/                 # Pydantic data models
 ├── utils/                  # Helper functions
 │   └── workflow_helpers.py # Centralized helpers
-├── tests/                  # Test suite
-├── docs/                   # Documentation
-│   ├── developers/        # Technical documentation
-│   ├── research/          # Business research
-│   └── phases/            # Project milestones
-├── marketing/             # Marketing materials
-├── artifacts/             # Workflow outputs
-└── archive/               # Archived experiments
+├── main.py                 # CLI entry point
+├── serve.py                # API server
+└── config.py               # Configuration
 ```
 
 ## Coding Standards
@@ -134,11 +131,11 @@ octave-clone/
 
 1. **Use centralized helpers**:
    ```python
-   # ✅ Good - use helper
+   # Good - use helper
    from utils.workflow_helpers import get_parallel_step_content
    data = get_parallel_step_content(step_input, "block_name", "step_name")
 
-   # ❌ Bad - manual deserialization
+   # Bad - manual deserialization
    data = step_input.get_step_content("block_name")["step_name"]
    if isinstance(data, str):
        data = ast.literal_eval(data)
@@ -146,21 +143,21 @@ octave-clone/
 
 2. **Always use fail-fast validation**:
    ```python
-   # ✅ Good - stop on error
+   # Good - stop on error
    if not data:
        return StepOutput(content="Error message", stop=True)
 
-   # ❌ Bad - graceful degradation
+   # Bad - graceful degradation
    if not data:
        data = {}  # Don't do this!
    ```
 
 3. **Pass Pydantic models directly** (don't use `.dict()` or `.model_dump()`):
    ```python
-   # ✅ Good
+   # Good
    workflow.print_response(message=workflow_input)
 
-   # ❌ Bad
+   # Bad
    workflow.print_response(message=workflow_input.model_dump())
    ```
 
@@ -278,8 +275,7 @@ Update documentation when you:
 
 - **Technical questions**: See [docs/developers/README.md](docs/developers/README.md)
 - **Architecture questions**: See [docs/developers/architecture/ARCHITECTURE.md](docs/developers/architecture/ARCHITECTURE.md)
-- **Code patterns**: See [docs/developers/simplification/SIMPLIFICATION_V2.md](docs/developers/simplification/SIMPLIFICATION_V2.md)
-- **Agno framework**: See [docs/developers/examples/parallel-outputs/](docs/developers/examples/parallel-outputs/)
+- **Agno framework**: See [Agno documentation](https://docs.agno.com)
 
 ## Code of Conduct
 
@@ -294,4 +290,4 @@ By contributing, you agree that your contributions will be licensed under the pr
 
 ---
 
-Thank you for contributing to OctaveHQ Clone! 🚀
+Thank you for contributing to Playbook AI!
